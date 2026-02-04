@@ -38,30 +38,38 @@ pub fn build(b: *std.Build) void {
     // ------------------------------
 
     const env_tests = b.addTest(.{
-        .root_source_file = b.path("tests/env_tests.zig"),
-        .target = target,
-        .optimize = optimize,
+        .root_module = b.createModule(.{
+            .root_source_file = b.path("tests/env_tests.zig"),
+            .target = target,
+            .optimize = optimize,
+        }),
     });
     env_tests.root_module.addImport("config", lib_mod);
 
     const ini_tests = b.addTest(.{
-        .root_source_file = b.path("tests/ini_tests.zig"),
-        .target = target,
-        .optimize = optimize,
+        .root_module = b.createModule(.{
+            .root_source_file = b.path("tests/ini_tests.zig"),
+            .target = target,
+            .optimize = optimize,
+        }),
     });
     ini_tests.root_module.addImport("config", lib_mod);
 
     const toml_tests = b.addTest(.{
-        .root_source_file = b.path("tests/toml_tests.zig"),
-        .target = target,
-        .optimize = optimize,
+        .root_module = b.createModule(.{
+            .root_source_file = b.path("tests/toml_tests.zig"),
+            .target = target,
+            .optimize = optimize,
+        }),
     });
     toml_tests.root_module.addImport("config", lib_mod);
 
     const other_tests = b.addTest(.{
-        .root_source_file = b.path("tests/other_tests.zig"),
-        .target = target,
-        .optimize = optimize,
+        .root_module = b.createModule(.{
+            .root_source_file = b.path("tests/other_tests.zig"),
+            .target = target,
+            .optimize = optimize,
+        }),
     });
     other_tests.root_module.addImport("config", lib_mod);
 
