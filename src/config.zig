@@ -1,15 +1,12 @@
 const std = @import("std");
-const utils = @import("utils.zig");
-const accessors = @import("accessors.zig");
-const merge = @import("merge.zig");
-const values = @import("value.zig");
+const mod_utils = @import("utils.zig");
+const mod_accessors = @import("accessors.zig");
+const mod_merge = @import("merge.zig");
+const mod_values = @import("value.zig");
 
 const parser = @import("parser/mod.zig");
 const writers = @import("writer/mod.zig");
 
-const Value = @import("value.zig").Value;
-const OwnedValue = @import("value.zig").OwnedValue;
-const valueToString = @import("value.zig").valueToString;
 const ConfigError = @import("errors.zig").ConfigError;
 
 const parse_env = @import("parser/env.zig");
@@ -27,7 +24,7 @@ pub const Config = struct {
     pub const Version = "0.3.0";
 
     /// A string-to-string hash map storing the entries.
-    map: std.StringHashMap(Value),
+    map: std.StringHashMap(mod_values.Value),
 
     /// Used to indicate which file format to parse when loading from buffer
     pub const Format = enum { env, ini, toml };
@@ -42,15 +39,42 @@ pub const Config = struct {
     pub const writeIniFile = writers.writeIni;
 
     // Attach namespaces
-    pub usingnamespace accessors;
-    pub usingnamespace merge;
-    pub usingnamespace values;
-    pub usingnamespace utils;
+    // Accessors
+    pub const get = mod_accessors.get;
+    pub const getAs = mod_accessors.getAs;
+    pub const getString = mod_accessors.getString;
+    pub const getSection = mod_accessors.getSection;
+    pub const has = mod_accessors.has;
+    pub const keys = mod_accessors.keys;
+
+    // Merge
+    pub const MergeBehavior = mod_merge.MergeBehavior;
+    pub const merge = mod_merge.merge;
+
+    // Values
+    pub const Table = mod_values.Table;
+    pub const valueToType = mod_values.valueToType;
+    pub const Value = mod_values.Value;
+    pub const OwnedValue = mod_values.OwnedValue;
+    pub const valueToString = mod_values.valueToString;
+    pub const ResolvedValue = mod_values.ResolvedValue;
+
+    // Utils
+    pub const VariableExpr = mod_utils.VariableExpr;
+    pub const parseVariableExpression = mod_utils.parseVariableExpression;
+    pub const parseKeyValueIntoTable = mod_utils.parseKeyValueIntoTable;
+    pub const insertEntry = mod_utils.insertEntry;
+    pub const unescapeString = mod_utils.unescapeString;
+    pub const escapeString = mod_utils.escapeString;
+    pub const findUnescaped = mod_utils.findUnescaped;
+    pub const stripQuotes = mod_utils.stripQuotes;
+    pub const getBool = mod_utils.getBool;
+    pub const deepCloneValue = mod_utils.deepCloneValue;
 
     /// Creates a new empty config with the given allocator.
     pub fn init(allocator: std.mem.Allocator) Config {
         return Config{
-            .map = std.StringHashMap(Value).init(allocator),
+            .map = std.StringHashMap(mod_values.Value).init(allocator),
         };
     }
 
@@ -172,7 +196,7 @@ pub const Config = struct {
 
         var it = self.map.iterator();
         while (it.next()) |entry| {
-            const val_str = try valueToString(entry.value_ptr.*, self.map.allocator);
+            const val_str = try mod_values.valueToString(entry.value_ptr.*, self.map.allocator);
             defer self.map.allocator.free(val_str);
             try env_map.put(entry.key_ptr.*, val_str);
         }
